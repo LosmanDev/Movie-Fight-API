@@ -5,17 +5,26 @@ const fetchData = async (searchTerm) => {
       s: searchTerm,
     },
   });
-  console.log(response.data);
-};
 
-let timeoutId;
-const input = document.querySelector("input");
-const onInput = (event) => {
-  if (timeoutId) {
-    clearTimeout(timeoutId);
+  if (response.data.Error) {
+    return [];
   }
-  timeoutId = setTimeout(() => {
-    fetchData(event.target.value);
-  }, 500);
+
+  return response.data.Search;
 };
-input.addEventListener("input", onInput);
+const input = document.querySelector("input");
+
+const onInput = async (event) => {
+  const movies = await fetchData(event.target.value);
+  console.log(movies);
+
+  for (let movie of movies) {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <img src=${movie.Poster}/>
+      <h1>${movie.Title}</h1>
+    `;
+    document.querySelector("#target").appendChild(div);
+  }
+};
+input.addEventListener("input", debounce(onInput, 500));
